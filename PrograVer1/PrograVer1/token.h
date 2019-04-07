@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdlib>
 #include <list>
+#include "lista.h"
 
 using namespace std;
 
@@ -23,6 +24,7 @@ public:
 	int valor = 0;
 	string nombre;
 	bool ocupada = false;
+	enlace elemento;
 
 	static bool todosDigitos(string s) {
 		unsigned int i = 0;
@@ -37,7 +39,7 @@ public:
 		unsigned int i = 0;
 		bool ok = true;
 		while (i < s.length() && ok) {
-			ok = s[i] >= 'a' && s[i] <= 'z' || s[i] >= 'A' && s[i] <= 'Z';
+			ok = s[i] >= 'a' && s[i] <= 'z' || s[i] >= 'A' && s[i] <= 'Z' || s[i]==' ';
 			i++;
 		}
 		return ok;
@@ -55,7 +57,7 @@ public:
 				else if (s == "v") {
 					tipo = pvalor;
 				}
-				else if (s == "new nodo") {
+				else if (s == "new Nodo") {
 					tipo = crear;
 				}
 				else{

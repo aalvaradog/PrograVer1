@@ -147,6 +147,7 @@
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ejecutar.h" />
     <ClInclude Include="lista.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="token.h" />

@@ -15,18 +15,28 @@ public:
 		string x;
 		while ( i < entrada.length()) {
 			if(entrada[i] >= 'a' && entrada[i] <= 'z') {
-				while (entrada[i] != '-' && entrada[i] != ';' & entrada[i] != '=') {
+				while (entrada[i] != '-' && entrada[i] != ';' & entrada[i] != '=' & entrada[i]!='(') {
 					x += entrada[i];
 					i++;
 				}
 				Token obj = Token(x);
-				tokens.push(obj);
 				x = "";
+				if (entrada[i] == '(') {
+					string y;
+					i++;
+					while (entrada[i] != ')') {
+						y += entrada[i];
+						i++;
+					}
+					obj.valor = atoi(y.c_str());
+					i++;
+				}
+				tokens.push(obj);
 			}
 			else if (entrada[i] == '-' && entrada[i+1] == '>') {
 				x ="->";
 				Token obj = Token(x);
-				tokens.push(obj);
+				//tokens.push(obj);
 				i += 2;
 				x = "";
 			}
