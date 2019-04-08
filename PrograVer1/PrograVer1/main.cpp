@@ -7,10 +7,9 @@
 using namespace std;
 int main()
 {
-	string a, b;
+	string a;
+	//obtiene la entrada
 	getline(cin, a);
 	tokenizador x = tokenizador(a);
-	Token token = Token(x.tokens.front());
-	cout << token.tipo;
 	ejecutar eje = ejecutar(x.tokens);
 }

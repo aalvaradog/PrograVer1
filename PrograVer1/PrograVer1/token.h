@@ -26,6 +26,7 @@ public:
 	bool ocupada = false;
 	enlace elemento;
 
+	//Verifica si el string que recibe esta compuesto únicamente por números
 	static bool todosDigitos(string s) {
 		unsigned int i = 0;
 		bool ok = true;
@@ -35,6 +36,7 @@ public:
 		}
 		return ok;
 	}
+	//Verifica si el string que recibe está compuesto únicamente por letras
 	static bool todosLetras(string s) {
 		unsigned int i = 0;
 		bool ok = true;
@@ -43,6 +45,9 @@ public:
 			i++;
 		}
 		return ok;
+	}
+	//constructor para declarar variables tipo Token vacías
+	Token() {
 	}
 	Token(string s) {
 		if (s.length() >= 0 && todosDigitos(s)) {
