@@ -9,7 +9,7 @@ class tokenizador {
 	string s;
 public:
 	queue<Token> tokens;
-	tokenizador(string entrada) {
+	tokenizador(string entrada, enlaceT base) {
 		s = entrada;
 		int i = 0;
 		string x;
@@ -21,7 +21,12 @@ public:
 					x += entrada[i];
 					i++;
 				}
-				Token obj = Token(x);
+				Token obj;
+				//buscarV averigua si la variable ya fue creada y le asigna a obj el Token correspondiente a la variable
+				//sino crea un nuevo Token
+				if (buscarV(x, base, obj) == false) {
+					obj = Token(x);
+				}
 				x = "";
 				//si se encuentra un parantesis quiere decir que el token lleva alguna valor necesario para su creación, ej: new Nodo(int)
 				if (entrada[i] == '(') {
@@ -53,5 +58,17 @@ public:
 				i++;
 			}
 		}
+	}
+	bool buscarV(string x, enlaceT base, Token &obj) {
+		while (base) {
+			if (base->t.nombre == x) {
+				obj = base->t;
+				return true;
+			}
+			else {
+				base = base->sig;
+			}
+		}
+		return false;
 	}
 };
