@@ -9,7 +9,7 @@ class tokenizador {
 	string s;
 public:
 	queue<Token> tokens;
-	tokenizador(string entrada, enlaceT base) {
+	tokenizador(string entrada, list<Token> base) {
 		s = entrada;
 		int i = 0;
 		string x;
@@ -59,14 +59,14 @@ public:
 			}
 		}
 	}
-	bool buscarV(string x, enlaceT base, Token &obj) {
-		while (base) {
-			if (base->t.nombre == x) {
-				obj = base->t;
+	bool buscarV(string x, list<Token> base, Token &obj) {
+		while (base.size()!=0) {
+			if (base.front().nombre == x) {
+				obj = base.front();
 				return true;
 			}
 			else {
-				base = base->sig;
+				base.pop_front();
 			}
 		}
 		return false;

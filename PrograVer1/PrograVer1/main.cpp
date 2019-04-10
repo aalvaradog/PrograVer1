@@ -4,12 +4,13 @@
 #include "tokenizador.h"
 #include "ejecutar.h"
 #include "lista.h"
+#include <list>
 
 using namespace std;
 int main()
 {
+	list<Token> base;
 	while (true) {
-		enlaceT base;
 		string a;
 		//obtiene la entrada
 		getline(cin, a);

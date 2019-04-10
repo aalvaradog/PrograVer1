@@ -10,7 +10,7 @@ using namespace std;
 class ejecutar {
 	//Token var;
 public:
-	ejecutar(queue<Token> q, enlaceT &base ) {
+	ejecutar(queue<Token> q, list<Token> &base ) {
 		//utilizar un ciclo con un switch adentro que vaya recorriendo la cola y dependiendo del tipo llame a x función
 		//algunos tipos quizá no sean necesario crearles una función o quizá ni si quiera haya que tormarlos en cuenta
 		Token var;
@@ -42,7 +42,7 @@ public:
 			}
 		}
 		if (buscarV(var, base) == false) {
-			base = new nodo(var);
+			base.push_front(var);
 		}
 	}
 	void crearNodo(Token &var, queue<Token> &q) {
@@ -62,9 +62,10 @@ public:
 			}
 		}
 	}
-	void avanzar(Token &var, queue<Token> &q){
+	void avanzar(Token &p, queue<Token> &q){
 		if (q.front().tipo == 5) {
-			while (q.front().tipo != 5) {
+			while (q.front().tipo == 5) {
+				Token var = p;
 				var.elemento = var.elemento->sig;
 				q.pop();
 			}
@@ -75,15 +76,15 @@ public:
 		q.pop();
 		return valor;
 	}
-	bool buscarV(Token t, enlaceT e) {
-		enlaceT base = e;
-		while (base) {
-			if (base->t.nombre == t.nombre) {
-				base->t=t;
+	bool buscarV(Token t, list<Token> &e) {
+		list<Token> base = e;
+		while (base.size()!=0) {
+			if (base.front().nombre == t.nombre) {
+				base.front()=t;
 				return true;
 			}
 			else {
-				base = base->sig;
+				base.pop_front();
 			}
 		}
 		return false;
