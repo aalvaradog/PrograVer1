@@ -13,7 +13,7 @@ using namespace std;
 enum TipoToken {
 	variable, asignacion, puntero,
 	puntoComa, numero, siguiente, 
-	pvalor, crear
+	pvalor, crear, nulo
 };
 
 string vToken[16]{ "->", ";", "=", };
@@ -23,8 +23,8 @@ public:
 	TipoToken tipo;
 	int valor = 0;
 	string nombre;
-	bool ocupada = false;
-	enlace elemento;
+	int ciclos = 0;
+	enlace elemento=nullptr;
 
 	//Verifica si el string que recibe esta compuesto únicamente por números
 	static bool todosDigitos(string s) {
@@ -78,6 +78,9 @@ public:
 						break;
 					case '=':
 						tipo = asignacion;
+						break;
+					case '\n':
+						tipo = nulo;
 						break;
 					default:
 						tipo = puntero;

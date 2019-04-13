@@ -14,7 +14,7 @@ public:
 		//utilizar un ciclo con un switch adentro que vaya recorriendo la cola y dependiendo del tipo llame a x función
 		//algunos tipos quizá no sean necesario crearles una función o quizá ni si quiera haya que tormarlos en cuenta
 		Token var;
-		while (!q.empty()) {
+ 		while (!q.empty()) {
 			switch (q.front().tipo) {
 			case 0://variable
 				var = q.front();
@@ -29,13 +29,14 @@ public:
 			case 4://numero
 				break;
 			case 5://siguiente
-				avanzar(var, q);
+				avanzar(var);
 				break;
 			case 6://apunta a valor
 				apuntarValor(var, q);
 				break;
 			case 7://crear un nuevo nodo
-				crearNodo(var, q);
+				q.pop();
+				crearN(var.elemento, var.ciclos, q);
 				break;
 			default:
 				break;
@@ -45,30 +46,70 @@ public:
 			base.push_front(var);
 		}
 	}
-	void crearNodo(Token &var, queue<Token> &q) {
-		if (q.front().tipo == 7){
-			int x = q.front().valor;
-			q.pop();
-			if (q.front().tipo == 0) {
-				Token var2 = q.front();
-				q.pop();
-				if (q.front().tipo == 5) {
-					avanzar(var, q);
+	void crearN(enlace &q, int v, queue<Token> &c) {
+		if (c.front().tipo == 4) {
+			int x = c.front().valor;
+			c.pop();
+			if (!q) {
+				if (!c.empty() && c.front().tipo == 0) {
+					q = new Nodo(x, c.front().elemento);
+					c.pop();
 				}
-				var.elemento = new Nodo(x, q.front().elemento);
+				else {
+					q = new Nodo(x);
+				}
 			}
 			else {
-				var.elemento = new Nodo(x);
+				enlace p = q;
+				while (p->sig && v > 0) {
+					p = p->sig;
+					v--;
+				}
+				if (!c.empty() && c.front().tipo == 0) {
+					p->sig = new Nodo(x, c.front().elemento);
+					c.pop();
+				}
+				else {
+					p->sig = new Nodo(x, p->sig);
+				}
+			}
+		}
+		else {
+			if (c.front().ciclos != 0) {
+				avanzar(c.front());
+			}
+			int x = c.front().elemento->v;
+			c.pop();
+			c.pop();
+			if (!q) {
+				if (!c.empty() && c.front().tipo == 0) {
+					q = new Nodo(x, c.front().elemento);
+					c.pop();
+				}
+				else {
+					q = new Nodo(x);
+				}
+			}
+			else {
+				enlace p = q;
+				while (p->sig && v > 0) {
+					p = p->sig;
+					v--;
+				}
+				if (!c.empty() && c.front().tipo == 0) {
+					p->sig = new Nodo(x, c.front().elemento);
+					c.pop();
+				}
+				else {
+					p->sig = new Nodo(x, p->sig);
+				}
 			}
 		}
 	}
-	void avanzar(Token &p, queue<Token> &q){
-		if (q.front().tipo == 5) {
-			while (q.front().tipo == 5) {
-				Token var = p;
-				var.elemento = var.elemento->sig;
-				q.pop();
-			}
+	void avanzar(Token &p){
+		while (p.ciclos != 0) {
+			p.elemento = p.elemento->sig;
+			p.ciclos--;
 		}
 	}
 	int apuntarValor(Token &var, queue<Token> &q) {
