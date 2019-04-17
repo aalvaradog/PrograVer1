@@ -13,7 +13,8 @@ using namespace std;
 enum TipoToken {
 	variable, asignacion, puntero,
 	puntoComa, numero, siguiente, 
-	pvalor, crear, nulo
+	pvalor, crear, nulo, ciclo,
+	repetidor, borrar
 };
 
 string vToken[16]{ "->", ";", "=", };
@@ -51,8 +52,13 @@ public:
 	}
 	Token(string s) {
 		if (s.length() >= 0 && todosDigitos(s)) {
-			tipo = numero;
-			valor = atoi(s.c_str());
+			if (s == "0") {
+				tipo = borrar;
+			}
+			else {
+				tipo = numero;
+				valor = atoi(s.c_str());
+			}
 		}
 		else {
 			if (s.length() > 0 && todosLetras(s)) {
@@ -64,6 +70,12 @@ public:
 				}
 				else if (s == "new Nodo") {
 					tipo = crear;
+				}
+				else if (s == "while") {
+					tipo = ciclo;
+				}
+				else if (s == "repeat") {
+					tipo = repetidor;
 				}
 				else{
 					tipo = variable;

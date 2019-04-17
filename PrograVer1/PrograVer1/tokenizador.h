@@ -18,7 +18,7 @@ public:
 			//validacion para las variables e instrucciones
 			//verifica si el string que recibe es una letra y lo va almacenando en una variable para despues crear un objeto de tipo Token
 			if (entrada[i] >= 'a' && entrada[i] <= 'z') {
-				while (entrada[i] != '-' && entrada[i] != ';' && entrada[i] != '=' && entrada[i] != '(' && entrada[i] != ')' && entrada[i]!=',') {
+				while (i < entrada.length() && entrada[i] != '-' && entrada[i] != ';' && entrada[i] != '=' && entrada[i] != '(' && entrada[i] != ')' && entrada[i]!=',') {
 					x += entrada[i];
 					i++;
 				}
