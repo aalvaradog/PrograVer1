@@ -14,10 +14,10 @@ enum TipoToken {
 	variable, asignacion, puntero,
 	puntoComa, numero, siguiente, 
 	pvalor, crear, nulo, ciclo,
-	repetidor, borrar
+	repetidor, borrar, aleatorio
 };
 
-string vToken[16]{ "->", ";", "=", };
+string vToken[16]{ ";", "=", "_"};
 
 class Token {
 public:
@@ -91,8 +91,8 @@ public:
 					case '=':
 						tipo = asignacion;
 						break;
-					case '\n':
-						tipo = nulo;
+					case '_':
+						tipo = aleatorio;
 						break;
 					default:
 						tipo = puntero;

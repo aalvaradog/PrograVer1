@@ -4,10 +4,14 @@
 #include "token.h"
 #include <queue>
 #include "tokenizador.h"
+#include <stdlib.h>
+#include <time.h>
 
 using namespace std;
 
 class ejecutar {
+	bool repeat = false;
+	int valor=0;
 public:
 	ejecutar(queue<Token> entrada, list<Token> &l ) {
 		procesarTokens(entrada, l);
@@ -47,14 +51,13 @@ public:
 				guardar(var, base);
 				break;
 			case 5://siguiente
-				avanzar(var);
 				break;
 			case 6://apunta a valor
 				//apuntarValor(var, q);
-				if (q.size() <= 2 && asignar == false) {
+				q.pop();
+				if ((q.empty() && asignar == false) || q.front().tipo==3) {
 					retornarV(var);
 				}
-				q.pop();
 				break;
 			case 7://crear un nuevo nodo
 				q.pop();
@@ -62,15 +65,16 @@ public:
 				var.ciclos = 0;
 				guardar(var, base);
 				break;
-			case 9:
+			case 9://while
 				q.pop();
 				fWhile(q, base);
 				break;
-			case 10:
+			case 10://repeat
 				q.pop();
+				repeat = true;
 				repetidor(q, base);
 				break;
-			case 11:
+			case 11://asignacion 0
 				q.pop();
 				borrar(var);
 				guardar(var, base);
@@ -102,12 +106,14 @@ public:
 			}
 		}
 	}
-	void actualizar(Token &t, list<Token> l) {
+	void actualizar(Token &t, list<Token> &l) {
 		list<Token> base = l;
 		vaciarLista(l);
 		while (base.size() != 0) {
 			if (base.front().nombre == t.nombre) {
+				base.front().ciclos = t.ciclos;
 				t = base.front();
+				l.push_front(t);
 			}
 			else {
 				l.push_back(base.front());
@@ -118,35 +124,52 @@ public:
 	void fWhile(queue<Token> &q, list<Token> &base) {
 		if (q.front().ciclos != 0) {
 			enlace p = q.front().elemento;
-			q.pop();
-			queue<Token> copia = q;
-			while(p->sig){
+			queue<Token> copia;
+			int con = q.front().ciclos;
+			while (q.front().ciclos != 0) {
+				p = p->sig;
+				q.front().ciclos--;
+			}
+			q.front().ciclos = con;
+			while(p){
 				copia = q;
+				copia.pop();
 				procesarTokens(copia, base);
+				actualizar(q.front() , base);
+				valor++;
+				p = p->sig;
+				
 			}
 		}
 		else {
-			//enlace p = q.front().elemento;
-			//q.pop();
+			enlace p = q.front().elemento;
 			queue<Token> copia;
-			while(q.front().elemento){
+			while(p){
 				copia = q;
 				copia.pop();
 				procesarTokens(copia, base);
 				actualizar(q.front(), base);
+				valor++;
+				p = p->sig;
 			}
 		}
+		q.front().ciclos = 0;
+		actualizar(q.front(), base);
 		vaciarCola(q);
 	}
 	void repetidor(queue<Token> &q, list<Token> &base) {
 		int p = q.front().valor;
 		q.pop();
 		queue<Token> copia;
+		valor = 1;
 		while (p!=0) {
+			q.front().ciclos = valor-1;
 			copia = q;
 			procesarTokens(copia, base);
+			valor++;
 			p--;
 		}
+		valor = p;
 		vaciarCola(q);
 	}
 	void vaciarCola(queue<Token> &q) {
@@ -169,19 +192,32 @@ public:
 	}
 	void guardar(Token &t, list<Token> &q) {
 		if (buscarV(t, q) == false) {
-			q.push_front(t);
+			q.push_front(t);	
 		}
 	}
 	void retornarV(Token t) {
-		if (t.ciclos != 0) {
-			avanzar(t);
+		if (valor != 0) {
+			avanzar(t, valor);
+		}
+		else if (t.ciclos != 0) {
+			avanzar(t, t.ciclos);
 		}
 		cout <<"Valor: "<< t.elemento->v<<endl;
 	}
 	//esta funcion se encarga de la instrucciones de tipo "new Nodo()"
 	void crearN(enlace &q, int v, queue<Token> &c) {
-		if (c.front().tipo == 4) {
-			int x = c.front().valor;
+		if (c.front().tipo == 4 || c.front().tipo==12) {
+			int x;
+			if (c.front().tipo == 12 && repeat == true) {
+				x = valor;
+			}
+			else if (c.front().tipo == 12) {
+				srand(time(NULL));
+				x = 1 + rand() % (99 - 1);
+			}
+			else {
+				x = c.front().valor;
+			}
 			c.pop();
 			if (!q) {
 				if (!c.empty() && c.front().tipo == 0) {
@@ -209,7 +245,7 @@ public:
 		}
 		else {
 			if (c.front().ciclos != 0) {
-				avanzar(c.front());
+				avanzar(c.front(), c.front().ciclos);
 			}
 			int x = c.front().elemento->v;
 			c.pop();
@@ -256,10 +292,10 @@ public:
 
 	}
 	//avanza x cantidad de nodos en una lista
-	void avanzar(Token &p){
-		while (p.ciclos != 0) {
+	void avanzar(Token &p, int x){
+		while (x != 0) {
 			p.elemento = p.elemento->sig;
-			p.ciclos--;
+			x--;
 		}
 	}
 	int apuntarValor(Token &var, queue<Token> &q) {
@@ -298,7 +334,7 @@ public:
 		q.pop();
 		if (!q.empty() && q.front().tipo == 6) {
 			if (var2.ciclos != 0) {
-				avanzar(var2);
+				avanzar(var2, var2.ciclos);
 			}
 			if (var.ciclos != 0) {
 				enlace p = var.elemento;
@@ -314,7 +350,7 @@ public:
 		}
 		else {
 			if (var2.ciclos != 0) {
-				avanzar(var2);
+				avanzar(var2, var2.ciclos);
 			}
 			if (var.ciclos != 0) {
 				enlace p = var.elemento;
