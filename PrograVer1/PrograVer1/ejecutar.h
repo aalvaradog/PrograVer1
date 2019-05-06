@@ -12,9 +12,15 @@ using namespace std;
 class ejecutar {
 	bool repeat = false;
 	int valor=0;
+	int posicion;
 public:
-	ejecutar(queue<Token> entrada, list<Token> &l ) {
+	bool resultado = true;
+	ejecutar(queue<Token> entrada, int &pos, list<Token> &l ) {
+		posicion = pos;
 		procesarTokens(entrada, l);
+		if (resultado != false) {
+			pos = posicion;
+		}
 	}
 	void procesarTokens(queue<Token> q, list<Token> &base) {
 		//utilizar un ciclo con un switch adentro que vaya recorriendo la cola y dependiendo del tipo llame a x función
@@ -29,6 +35,9 @@ public:
 						var = q.front();
 					}
 					q.pop();
+					if (q.empty() || q.front().tipo==3) {
+						retPos(var);
+					}
 				}
 				else {
 					if (buscarV(q.front(), base, q.front()) == false) {
@@ -77,33 +86,57 @@ public:
 			case 11://asignacion 0
 				q.pop();
 				borrar(var);
+				if (resultado == true) {
+					cout << "OK" << endl;
+				}
+				else {
+					cout << "Error" << endl;
+				}
 				guardar(var, base);
 			default:
 				break;
 			}
 		}
 	}
-	void borrar(Token &t) {
-		if (t.ciclos == 0) {
-			t.elemento = NULL;
+	void retPos(Token var) {
+		if (var.ciclos != 0) {
+			avanzar(var, var.ciclos);
+		}
+		if (var.elemento != nullptr) {
+			cout <<"Posicion: "<< var.elemento->pos<<endl;
 		}
 		else {
-			enlace p = t.elemento;
-			enlace q;
-			while (t.ciclos-1 != 0) {
-				p = p->sig;
-			}
-			t.ciclos = 0;
-			if (p->sig->sig != NULL) {
-				q = p->sig;
-				p->sig = p->sig->sig;
-				delete q;
+			resultado = false;
+		}
+	}
+	void borrar(Token &t) {
+		if (t.elemento != nullptr) {
+			if (t.ciclos == 0) {
+				t.elemento = NULL;
 			}
 			else {
-				q = p->sig;
-				p->sig = NULL;
-				delete q;
+				enlace p = t.elemento;
+				enlace q;
+				while (t.ciclos - 1 != 0) {
+					p = p->sig;
+				}
+				t.ciclos = 0;
+				if (p->sig->sig != NULL) {
+					q = p->sig;
+					p->sig = p->sig->sig;
+					delete q;
+					posicion--;
+				}
+				else {
+					q = p->sig;
+					p->sig = NULL;
+					delete q;
+					posicion--;
+				}
 			}
+		}
+		else {
+			resultado = false;
 		}
 	}
 	void actualizar(Token &t, list<Token> &l) {
@@ -196,83 +229,103 @@ public:
 		}
 	}
 	void retornarV(Token t) {
-		if (valor != 0) {
-			avanzar(t, valor);
-		}
-		else if (t.ciclos != 0) {
-			avanzar(t, t.ciclos);
-		}
-		cout <<"Valor: "<< t.elemento->v<<endl;
+			if (valor != 0) {
+				avanzar(t, valor);
+			}
+			else if (t.ciclos != 0) {
+				avanzar(t, t.ciclos);
+			}
+			if (t.elemento != NULL) {
+				cout << "Valor: " << t.elemento->v << endl;
+			}
+			else {
+				resultado = false;
+			}
 	}
 	//esta funcion se encarga de la instrucciones de tipo "new Nodo()"
 	void crearN(enlace &q, int v, queue<Token> &c) {
-		if (c.front().tipo == 4 || c.front().tipo==12) {
-			int x;
-			if (c.front().tipo == 12 && repeat == true) {
-				x = valor;
-			}
-			else if (c.front().tipo == 12) {
-				srand(time(NULL));
-				x = 1 + rand() % (99 - 1);
-			}
-			else {
-				x = c.front().valor;
-			}
-			c.pop();
-			if (!q) {
-				if (!c.empty() && c.front().tipo == 0) {
-					q = new Nodo(x, c.front().elemento);
-					c.pop();
+		if (posicion < 27) {
+			if (c.front().tipo == 4 || c.front().tipo == 12) {
+				int x;
+				if (c.front().tipo == 12 && repeat == true) {
+					x = valor;
+				}
+				else if (c.front().tipo == 12) {
+					srand(time(NULL));
+					x = 1 + rand() % (99 - 1);
 				}
 				else {
-					q = new Nodo(x);
+					x = c.front().valor;
+				}
+				c.pop();
+				if (!q) {
+					if (!c.empty() && c.front().tipo == 0) {
+						q = new Nodo(x, c.front().elemento);
+						q->pos = posicion;
+						c.pop();
+					}
+					else {
+						q = new Nodo(x);
+						q->pos = posicion;
+					}
+				}
+				else {
+					enlace p = q;
+					while (p->sig && v > 0) {
+						p = p->sig;
+						v--;
+					}
+					if (!c.empty() && c.front().tipo == 0) {
+						p->sig = new Nodo(x, c.front().elemento);
+						p->sig->pos = posicion;
+						c.pop();
+					}
+					else {
+						p->sig = new Nodo(x, p->sig);
+						p->sig->pos = posicion;
+					}
 				}
 			}
 			else {
-				enlace p = q;
-				while (p->sig && v > 0) {
-					p = p->sig;
-					v--;
+				if (c.front().ciclos != 0) {
+					avanzar(c.front(), c.front().ciclos);
 				}
-				if (!c.empty() && c.front().tipo == 0) {
-					p->sig = new Nodo(x, c.front().elemento);
-					c.pop();
+				int x = c.front().elemento->v;
+				c.pop();
+				c.pop();
+				if (!q) {
+					if (!c.empty() && c.front().tipo == 0) {
+						q = new Nodo(x, c.front().elemento);
+						q->pos = posicion;
+						c.pop();
+					}
+					else {
+						q = new Nodo(x);
+						q->pos = posicion;
+					}
 				}
 				else {
-					p->sig = new Nodo(x, p->sig);
+					enlace p = q;
+					while (p->sig && v > 0) {
+						p = p->sig;
+						v--;
+					}
+					if (!c.empty() && c.front().tipo == 0) {
+						p->sig = new Nodo(x, c.front().elemento);
+						p->sig->pos = posicion;
+						c.pop();
+					}
+					else {
+						p->sig = new Nodo(x, p->sig);
+						p->sig->pos = posicion;
+					}
 				}
 			}
+			posicion++;
 		}
-		else {
-			if (c.front().ciclos != 0) {
-				avanzar(c.front(), c.front().ciclos);
-			}
-			int x = c.front().elemento->v;
-			c.pop();
-			c.pop();
-			if (!q) {
-				if (!c.empty() && c.front().tipo == 0) {
-					q = new Nodo(x, c.front().elemento);
-					c.pop();
-				}
-				else {
-					q = new Nodo(x);
-				}
-			}
-			else {
-				enlace p = q;
-				while (p->sig && v > 0) {
-					p = p->sig;
-					v--;
-				}
-				if (!c.empty() && c.front().tipo == 0) {
-					p->sig = new Nodo(x, c.front().elemento);
-					c.pop();
-				}
-				else {
-					p->sig = new Nodo(x, p->sig);
-				}
-			}
+		else
+		{
+			resultado = false;
 		}
 	}
 	//realiza asignaciones de tipo referencia campo=valor
@@ -331,39 +384,50 @@ public:
 	//y referencia campo=referencia campo
 	void asignacion(Token &var, queue<Token> &q) {
 		Token var2 = q.front();
-		q.pop();
-		if (!q.empty() && q.front().tipo == 6) {
-			if (var2.ciclos != 0) {
-				avanzar(var2, var2.ciclos);
-			}
-			if (var.ciclos != 0) {
-				enlace p = var.elemento;
-				while (var.ciclos != 0) {
-					p = p->sig;
-					var.ciclos--;
+		if (var2.elemento != nullptr) {
+			q.pop();
+			if (!q.empty() && q.front().tipo == 6) {
+				if (var2.ciclos != 0) {
+					avanzar(var2, var2.ciclos);
 				}
-				p->v = var2.elemento->v;
+				if (var.ciclos != 0) {
+					enlace p = var.elemento;
+					while (var.ciclos != 0) {
+						p = p->sig;
+						var.ciclos--;
+					}
+					p->v = var2.elemento->v;
+				}
+				else {
+					var.elemento->v = var2.elemento->v;
+				}
 			}
 			else {
-				var.elemento->v = var2.elemento->v;
+				if (var2.ciclos != 0) {
+					avanzar(var2, var2.ciclos);
+				}
+				if (var.ciclos != 0) {
+					enlace p = var.elemento;
+					while (p!=nullptr && p->sig && var.ciclos > 0) {
+						p = p->sig;
+						var.ciclos--;
+					}
+					var.ciclos = 0;
+					p->sig = var2.elemento;
+				}
+				else {
+					var.elemento = var2.elemento;
+				}
 			}
 		}
 		else {
-			if (var2.ciclos != 0) {
-				avanzar(var2, var2.ciclos);
-			}
-			if (var.ciclos != 0) {
-				enlace p = var.elemento;
-				while (p->sig && var.ciclos > 0) {
-					p = p->sig;
-					var.ciclos--;
-				}
-				var.ciclos = 0;
-				p->sig = var2.elemento;
-			}
-			else {
-				var.elemento = var2.elemento;
-			}
+			vaciarCola2(q);
+			resultado = false;
+		}
+	}
+	void vaciarCola2(queue<Token> &q) {
+		while (!q.empty() && q.front().tipo != 3) {
+			q.pop();
 		}
 	}
 };
